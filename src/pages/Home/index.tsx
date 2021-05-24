@@ -11,13 +11,27 @@ import {
 import {Button} from '../../components/Button';
 import {SkillCard} from '../../components/SkillCard';
 
+interface IMySkills {
+  id: string;
+  name: string;
+}
+
 export function Home() {
   const [newSkill, setNewSkill] = useState('');
-  const [mySkills, setMySkills] = useState([]);
+  const [mySkills, setMySkills] = useState<IMySkills[]>([]);
 
   const handleAddSkill = useCallback(() => {
-    setMySkills(oldState => [...oldState, newSkill]);
-  });
+    const data = {
+      id: String(Math.floor(Math.random() * 398249)),
+      name: newSkill,
+    };
+
+    setMySkills(oldState => [...oldState, data]);
+  }, [newSkill]);
+
+  const handleRemoveSkill = useCallback((id: string) => {
+    setMySkills(oldState => oldState.filter(skill => skill.id !== id));
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -30,14 +44,19 @@ export function Home() {
         onChangeText={setNewSkill}
       />
 
-      <Button handleAddSkill={handleAddSkill} />
+      <Button onPress={handleAddSkill} />
 
       <Text style={[styles.title, {marginTop: 50}]}>My Skills</Text>
 
       <FlatList
         data={mySkills}
-        keyExtractor={item => item}
-        renderItem={({item}) => <SkillCard skill={item} />}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => (
+          <SkillCard
+            onPress={() => handleRemoveSkill(item.id)}
+            skill={item.name}
+          />
+        )}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
